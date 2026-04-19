@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🥗 My Recipe App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green:      #2e7d32;
+      --green-light:#66bb6a;
+      --green-pale: #e8f5e9;
+      --orange:     #f4511e;
+      --orange-pale:#fff3e0;
+      --yellow:     #fdd835;
+      --red:        #e53935;
+      --purple:     #7b1fa2;
+      --teal:       #00796b;
+      --card-shadow:0 6px 24px rgba(0,0,0,0.10);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      min-height: 100vh;
+      background: #f0faf0;
+      background-image:
+        radial-gradient(circle at 10% 20%, #c8e6c920 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, #fff9c420 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, #fce4ec15 0%, transparent 60%);
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: linear-gradient(135deg, var(--green) 0%, #1b5e20 100%);
+      color: white;
+      padding: 28px 20px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '🥦 🍅 🌽 🥕 🧅 🫑 🍋 🥑 🧄 🫛';
+      position: absolute; top: 8px; left: 0; right: 0;
+      font-size: 22px; letter-spacing: 6px; opacity: 0.25;
+      white-space: nowrap; overflow: hidden;
+    }
+    .header h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.8rem;
+      letter-spacing: 1px;
+      position: relative;
+    }
+    .header p {
+      font-size: 1rem;
+      opacity: 0.85;
+      margin-top: 4px;
+      position: relative;
+    }
+
+    /* ── SEARCH BAR ── */
+    .search-wrap {
+      max-width: 680px;
+      margin: -24px auto 0;
+      padding: 0 20px;
+      position: relative;
+      z-index: 10;
+    }
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: white;
+      border-radius: 50px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      padding: 6px 6px 6px 22px;
+      gap: 10px;
+    }
+    .search-box span { font-size: 1.3rem; }
+    .search-box input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      font-family: 'Nunito', sans-serif;
+      color: #333;
+      background: transparent;
+      padding: 8px 0;
+    }
+    .search-box input::placeholder { color: #aaa; }
+    .clear-btn {
+      background: #eee;
+      border: none;
+      border-radius: 50px;
+      padding: 8px 18px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      color: #666;
+      transition: background 0.2s;
+      display: none;
+    }
+    .clear-btn:hover { background: #ddd; }
+    .clear-btn.show { display: block; }
+
+    /* ── MAIN LAYOUT ── */
+    .main {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 30px 20px 60px;
+    }
+
+    /* ── FORM ── */
+    .form-card {
+      background: white;
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 36px;
+      border-top: 5px solid var(--green-light);
+    }
+    .form-card h2 {
+      font-family: 'Fredoka One', cursive;
+      color: var(--green);
+      font-size: 1.5rem;
+      margin-bottom: 18px;
+    }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid .full { grid-column: 1 / -1; }
+
+    label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #555;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    input[type=text], textarea, select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: 'Nunito', sans-serif;
+      transition: border-color 0.2s;
+      background: #fafafa;
+    }
+    input[type=text]:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--green-light);
+      background: white;
+    }
+    textarea { resize: vertical; min-height: 70px; }
+
+    .submit-btn {
+      background: linear-gradient(135deg, var(--green-light), var(--green));
+      color: white;
+      border: none;
+      padding: 13px 32px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 14px rgba(46,125,50,0.3);
+    }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46,125,50,0.4); }
+    .submit-btn:active { transform: translateY(0); }
+
+    /* ── RECIPE LIST HEADER ── */
+    .list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .list-header h2 {
+      font-family: 'Fredoka One', cursive;
+      color: var(--green);
+      font-size: 1.6rem;
+    }
+    .recipe-count {
+      background: var(--green-pale);
+      color: var(--green);
+      padding: 4px 14px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    /* ── SEARCH RESULT BANNER ── */
+    .search-banner {
+      background: #fff8e1;
+      border: 2px solid var(--yellow);
+      border-radius: 12px;
+      padding: 12px 18px;
+      margin-bottom: 18px;
+      font-size: 0.95rem;
+      color: #6d4c00;
+      display: none;
+    }
+    .search-banner.show { display: block; }
+
+    /* ── RECIPE IMAGE ── */
+    .recipe-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 14px;
+      display: block;
+    }
+    .recipe-img-placeholder {
+      width: 100%;
+      height: 180px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+      margin-bottom: 14px;
+    }
+
+    /* ── RECIPE CARDS ── */
+    .recipe-card {
+      background: white;
+      border-radius: 18px;
+      padding: 22px 24px;
+      margin-bottom: 16px;
+      box-shadow: var(--card-shadow);
+      border-left: 6px solid var(--green-light);
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: fadeUp 0.3s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .recipe-card:nth-child(3n+1) { border-left-color: var(--green-light); }
+    .recipe-card:nth-child(3n+2) { border-left-color: var(--orange); }
+    .recipe-card:nth-child(3n)   { border-left-color: #ab47bc; }
+    .recipe-card:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(0,0,0,0.13); }
+
+    .recipe-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .recipe-card h3 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.3rem;
+      color: #2c2c2c;
+    }
+    .category-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 4px 12px;
+      border-radius: 50px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .cat-breakfast { background: #fff9c4; color: #f57f17; }
+    .cat-lunch     { background: #e8f5e9; color: #2e7d32; }
+    .cat-dinner    { background: #fce4ec; color: #ad1457; }
+    .cat-snack     { background: #e3f2fd; color: #1565c0; }
+
+    .recipe-meta {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .recipe-meta p { font-size: 0.92rem; color: #555; line-height: 1.5; }
+    .recipe-meta b { color: #333; }
+
+    .ingredient-tags {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+    }
+    .tag {
+      background: #f1f8e9;
+      color: #388e3c;
+      border: 1px solid #c5e1a5;
+      padding: 3px 10px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .card-footer {
+      margin-top: 14px;
+      display: flex;
+      justify-content: flex-end;
+    }
+    .delete-btn {
+      background: #ffebee;
+      color: var(--red);
+      border: 2px solid #ffcdd2;
+      padding: 7px 18px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .delete-btn:hover { background: #ffcdd2; transform: scale(1.05); }
+
+    /* ── EMPTY STATE ── */
+    .empty {
+      text-align: center;
+      padding: 50px 20px;
+      color: #aaa;
+    }
+    .empty .icon { font-size: 3.5rem; margin-bottom: 12px; }
+    .empty p { font-size: 1.1rem; }
+
+    /* ── SUCCESS TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 30px; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--green);
+      color: white;
+      padding: 13px 28px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      z-index: 999;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>🥗 My Recipe App</h1>
+    <p>Your personal kitchen companion</p>
+  </div>
+
+  <!-- SEARCH BAR -->
+  <div class="search-wrap">
+    <div class="search-box">
+      <span>🔍</span>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search recipes... try 'rice' or 'chicken'"
+        oninput="handleSearch()"
+        autocomplete="off"
+      />
+      <button class="clear-btn" id="clearBtn" onclick="clearSearch()">✕ Clear</button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <!-- ADD RECIPE FORM -->
+    <div class="form-card">
+      <h2>🌿 Add New Recipe</h2>
+      <form id="recipeForm">
+        <div class="form-grid">
+          <div class="full">
+            <label>Recipe Name</label>
+            <input type="text" id="name" placeholder="e.g. Tomato Rice" required>
+          </div>
+          <div class="full">
+            <label>Ingredients (comma separated)</label>
+            <input type="text" id="ingredients" placeholder="e.g. rice, tomato, salt, oil">
+          </div>
+          <div class="full">
+            <label>Instructions</label>
+            <textarea id="instructions" rows="3" placeholder="How to cook it step by step..."></textarea>
+          </div>
+          <div class="full">
+            <label>Image URL (optional)</label>
+            <input type="text" id="image" placeholder="e.g. https://images.unsplash.com/photo-...">
+            <small style="color:#aaa;font-size:0.78rem;margin-top:4px;display:block;">
+              💡 Right-click any food image on Google → "Copy image address" → paste here
+            </small>
+          </div>
+          <div>
+            <label>Category</label>
+            <select id="category">
+              <option value="breakfast">🌅 Breakfast</option>
+              <option value="lunch">☀️ Lunch</option>
+              <option value="dinner">🌙 Dinner</option>
+              <option value="snack">🍿 Snack</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:flex-end;">
+            <button type="submit" class="submit-btn">+ Add Recipe</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- RECIPE LIST -->
+    <div class="list-header">
+      <h2>🍽️ All Recipes</h2>
+      <span class="recipe-count" id="recipeCount">0 recipes</span>
+    </div>
+
+    <div class="search-banner" id="searchBanner"></div>
+    <div id="recipeList"></div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API = 'http://localhost:3000/api/recipes';
+
+    /* ─────────────────────────────
+       DISPLAY RECIPES  (shared by
+       both loadRecipes & search)
+    ───────────────────────────── */
+    function displayRecipes(recipes) {
+      const list  = document.getElementById('recipeList');
+      const count = document.getElementById('recipeCount');
+
+      count.textContent = `${recipes.length} recipe${recipes.length !== 1 ? 's' : ''}`;
+      list.innerHTML = '';
+
+      if (recipes.length === 0) {
+        list.innerHTML = `
+          <div class="empty">
+            <div class="icon">🥲</div>
+            <p>No recipes found!<br>Try a different search or add one above.</p>
+          </div>`;
+        return;
+      }
+
+      const catEmoji = { breakfast:'🌅', lunch:'☀️', dinner:'🌙', snack:'🍿' };
+
+      recipes.forEach((recipe, i) => {
+        const cat   = recipe.category || 'lunch';
+        const tags  = Array.isArray(recipe.ingredients)
+          ? recipe.ingredients
+          : (recipe.ingredients || '').split(',').map(s => s.trim()).filter(Boolean);
+
+        const tagHTML = tags.map(t => `<span class="tag">🌿 ${t}</span>`).join('');
+
+        const card = document.createElement('div');
+        card.className = 'recipe-card';
+        card.style.animationDelay = `${i * 60}ms`;
+
+        const imgHTML = recipe.image
+          ? `<img class="recipe-img" src="${recipe.image}" alt="${recipe.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+          : '';
+        const placeholderHTML = `<div class="recipe-img-placeholder" style="${recipe.image ? 'display:none' : ''}">${catEmoji[cat] || '🍴'}</div>`;
+
+        card.innerHTML = `
+          ${imgHTML}
+          ${placeholderHTML}
+          <div class="recipe-top">
+            <h3>${catEmoji[cat] || '🍴'} ${recipe.name}</h3>
+            <span class="category-badge cat-${cat}">${cat}</span>
+          </div>
+          <div class="recipe-meta">
+            <div class="ingredient-tags">${tagHTML}</div>
+            ${recipe.instructions
+              ? `<p><b>Instructions:</b> ${recipe.instructions}</p>`
+              : ''}
+          </div>
+          <div class="card-footer">
+            <button class="delete-btn" onclick="deleteRecipe('${recipe._id}')">🗑 Delete</button>
+          </div>`;
+        list.appendChild(card);
+      });
+    }
+
+    /* ─────────────────────────────
+       LOAD ALL RECIPES
+    ───────────────────────────── */
+    async function loadRecipes() {
+      try {
+        const res     = await fetch(API);
+        const recipes = await res.json();
+        displayRecipes(recipes);
+      } catch (err) {
+        document.getElementById('recipeList').innerHTML =
+          `<div class="empty"><div class="icon">⚠️</div><p>Could not connect to server.<br>Make sure your server is running!</p></div>`;
+      }
+    }
+
+    /* ─────────────────────────────
+       SEARCH  (calls Week 3 API)
+    ───────────────────────────── */
+    async function handleSearch() {
+      const query   = document.getElementById('searchInput').value.trim();
+      const clearBtn = document.getElementById('clearBtn');
+      const banner   = document.getElementById('searchBanner');
+
+      clearBtn.classList.toggle('show', query.length > 0);
+
+      if (query === '') {
+        banner.classList.remove('show');
+        loadRecipes();
+        return;
+      }
+
+      try {
+        const res     = await fetch(`${API}?search=${encodeURIComponent(query)}`);
+        const recipes = await res.json();
+
+        banner.textContent = `🔍 Showing ${recipes.length} result${recipes.length !== 1 ? 's' : ''} for "${query}"`;
+        banner.classList.add('show');
+        displayRecipes(recipes);
+      } catch (err) {
+        banner.textContent = '⚠️ Search failed — check your server is running!';
+        banner.classList.add('show');
+      }
+    }
+
+    function clearSearch() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('clearBtn').classList.remove('show');
+      document.getElementById('searchBanner').classList.remove('show');
+      loadRecipes();
+    }
+
+    /* ─────────────────────────────
+       ADD RECIPE
+    ───────────────────────────── */
+    document.getElementById('recipeForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const newRecipe = {
+        name:         document.getElementById('name').value,
+        ingredients:  document.getElementById('ingredients').value.split(',').map(i => i.trim()),
+        instructions: document.getElementById('instructions').value,
+        category:     document.getElementById('category').value,
+        image:        document.getElementById('image').value.trim()
+      };
+
+      await fetch(API, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(newRecipe)
+      });
+
+      e.target.reset();
+      showToast('✅ Recipe added!');
+      loadRecipes();
+    });
+
+    /* ─────────────────────────────
+       DELETE RECIPE
+    ───────────────────────────── */
+    async function deleteRecipe(id) {
+      if (!confirm('Delete this recipe?')) return;
+      await fetch(`${API}/${id}`, { method: 'DELETE' });
+      showToast('🗑 Recipe deleted');
+      loadRecipes();
+    }
+
+    /* ─────────────────────────────
+       TOAST NOTIFICATION
+    ───────────────────────────── */
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // Load on start
+    loadRecipes();
+  </script>
+</body>
+</html>
